@@ -35,3 +35,37 @@ data class Id3Metadata(
         }
     }
 }
+
+enum class Id3PictureType(val value: Byte) {
+    OTHER(0x00),        //$00     Other
+    FILE_ICON(0x01),    //$01     32x32 pixels 'file icon' (PNG only)
+    OTHER_ICON(0x02),   //$02     Other file icon
+    COVER_FRONT(0x03),  //$03     Cover (front)
+    COVER_BACK(0x04),   //$04     Cover (back)
+    LEAFLET(0x05),      //$05     Leaflet page
+    MEDIA(0x06),        //$06     Media (e.g. lable side of CD)
+    ARTIST_LEAD(0x07),  //$07     Lead artist/lead performer/soloist
+    ARTIST_PERFORMER(0x08), //$08     Artist/performer
+    CONDUCTOR(0x09),    //$09     Conductor
+    BAND(0x0A),         //$0A     Band/Orchestra
+    COMPOSER(0x0B),     //$0B     Composer
+    LYRICIST(0x0C),     //$0C     Lyricist/text writer
+    RECORDING_LOCATION(0x0D), //$0D     Recording Location
+    DURING_RECORDING(0x0E), //$0E     During recording
+    DURING_PERFORMANCE(0x0F), //$0F     During performance
+    SCREEN_CAP(0x10),   //$10     Movie/video screen capture
+    //$11     A bright coloured fish
+    ILLUSTRATION(0x12), //$12     Illustration
+    LOGO_ARTIST(0x13),  //$13     Band/artist logotype
+    LOGO_PUBLISHER(0x14); //$14     Publisher/Studio logotype
+
+    companion object {
+        fun fromFlag(value: Byte) : Id3PictureType {
+            val result = Id3PictureType.values()
+                    .filter { it.value == value }
+                    .firstOrNull()
+            return result ?: OTHER
+        }
+    }
+
+}
