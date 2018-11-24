@@ -1,7 +1,10 @@
 package name.seanpayne.util.id3tool
 
 import com.mpatric.mp3agic.ID3Wrapper
+import com.mpatric.mp3agic.ID3v2ObseletePictureFrameData
+import com.mpatric.mp3agic.ID3v2PictureFrameData
 import com.mpatric.mp3agic.Mp3File
+import java.util.*
 
 data class Mp3FileMetadata(
         val length:Long,
@@ -19,7 +22,8 @@ data class Id3Metadata(
         val track:String?,
         val year:String?,
         val comment:String?,
-        val genre:Int?) {
+        val genre:Int?,
+        val images: Array<Id3Picture> = emptyArray()) {
     companion object {
         fun convertId3(mp3File: Mp3File) : Id3Metadata? {
             val wrapper = ID3Wrapper(mp3File.id3v1Tag, mp3File.id3v2Tag)
@@ -31,8 +35,28 @@ data class Id3Metadata(
                     year = wrapper.year,
                     comment = wrapper.comment,
                     genre = if (wrapper.genre == -1) null else wrapper.genre,
+                    images = mp3File.id3v2Tag?.frameSets?.get("APIC")?.frames.orEmpty()
+                            .map { if (mp3File.id3v2Tag.obseleteFormat) ID3v2ObseletePictureFrameData(false, it.data) else ID3v2PictureFrameData(false, it.data) }
+                            .map { Id3Picture.convertId3PictureData(it) }
+                            .toTypedArray()
             )
         }
+    }
+}
+
+data class Id3Picture(
+        val pictureType: Id3PictureType,
+        val description: String,
+        val mimeType: String,
+        val data: String
+) {
+    companion object {
+        fun convertId3PictureData(frameData: ID3v2PictureFrameData) = Id3Picture(
+                pictureType = Id3PictureType.fromFlag(frameData.pictureType),
+                mimeType = frameData.mimeType,
+                description = frameData.description?.toString() ?: "",
+                data = Base64.getEncoder().encodeToString(frameData.imageData)
+        )
     }
 }
 
