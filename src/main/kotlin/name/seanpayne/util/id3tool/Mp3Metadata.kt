@@ -4,38 +4,32 @@ import com.mpatric.mp3agic.Mp3File
 
 data class Mp3FileMetadata(
         val length:Long,
-        val id3v1: Id3V1Metadata?)
+        val metdata: Id3Metadata?)
 
 fun Mp3File.jsonMetadata() = Mp3FileMetadata(
         this.lengthInMilliseconds,
-        Id3V1Metadata.convertId3V1(this)
+        Id3Metadata.convertId3(this)
 )
 
-data class Id3V1Metadata(
+data class Id3Metadata(
         val album:String?,
         val artist:String?,
         val title:String?,
         val track:String?,
         val year:String?,
         val comment:String?,
-        val genre:Int?,
-        val genreDescription: String?) {
+        val genre:Int?) {
     companion object {
-        fun convertId3V1(mp3File: Mp3File) : Id3V1Metadata? {
-            return if (mp3File.hasId3v1Tag()) {
-                Id3V1Metadata(
-                        mp3File.id3v1Tag?.album,
-                        mp3File.id3v1Tag?.artist,
-                        mp3File.id3v1Tag?.title,
-                        mp3File.id3v1Tag?.track,
-                        mp3File.id3v1Tag?.year,
-                        mp3File.id3v1Tag?.comment,
-                        if (mp3File.id3v1Tag?.genre == -1) null else mp3File.id3v1Tag?.genre,
-                        if (mp3File.id3v1Tag?.genre == -1) null else mp3File.id3v1Tag?.genreDescription
-                )
-            } else {
-                null
-            }
+        fun convertId3(mp3File: Mp3File) : Id3Metadata? {
+            return Id3Metadata(
+                    album = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.album else mp3File.id3v1Tag?.album,
+                    artist = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.artist else mp3File.id3v1Tag?.artist,
+                    title = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.title else mp3File.id3v1Tag?.title,
+                    track = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.track else mp3File.id3v1Tag?.track,
+                    year = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.year else mp3File.id3v1Tag?.year,
+                    comment = if (mp3File.hasId3v2Tag()) mp3File.id3v2Tag.comment else mp3File.id3v1Tag?.comment,
+                    genre = if (mp3File.hasId3v2Tag()) if(mp3File.id3v2Tag.genre == -1) null else mp3File.id3v2Tag.genre else if(mp3File.id3v1Tag.genre == -1) null else mp3File.id3v1Tag?.genre
+            )
         }
     }
 }
