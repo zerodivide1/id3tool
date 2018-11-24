@@ -30,7 +30,7 @@ data class Id3Metadata(
                     track = wrapper.track,
                     year = wrapper.year,
                     comment = wrapper.comment,
-                    genre = wrapper.genre
+                    genre = if (wrapper.genre == -1) null else wrapper.genre,
             )
         }
     }
