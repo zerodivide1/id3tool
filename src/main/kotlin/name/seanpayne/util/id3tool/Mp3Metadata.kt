@@ -91,6 +91,11 @@ enum class Id3PictureType(val value: Byte) {
 
 }
 
+data class Id3ChapterTOC(
+        val id: String,
+        val root: Boolean,
+        val chapters: Array<Id3Chapter>
+)
 
 data class Id3Chapter(
         val id: String,
