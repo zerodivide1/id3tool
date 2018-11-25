@@ -91,6 +91,11 @@ enum class Id3PictureType(val value: Byte) {
 
 }
 
+
+interface ChapterAttachment {
+    val type: ChapterAttachmentType
+}
+
 enum class ChapterAttachmentType(val flag: String) {
     TITLE("TIT2"),
     URL("WXXX"),
@@ -104,4 +109,16 @@ enum class ChapterAttachmentType(val flag: String) {
             return result ?: OTHER
         }
     }
+}
+
+data class TitleChapterAttachment(val text: String) : ChapterAttachment {
+    override val type: ChapterAttachmentType = ChapterAttachmentType.TITLE
+}
+
+data class UrlChapterAttachment(val description: String, val url: String) : ChapterAttachment {
+    override val type: ChapterAttachmentType = ChapterAttachmentType.URL
+}
+
+data class OtherChapterAttachment(val id: String) : ChapterAttachment {
+    override val type: ChapterAttachmentType = ChapterAttachmentType.OTHER
 }
