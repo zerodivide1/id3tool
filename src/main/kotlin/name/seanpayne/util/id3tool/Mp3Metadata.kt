@@ -20,6 +20,7 @@ data class Id3Metadata(
         val year:String?,
         val comment:String?,
         val genre:Int?,
+        val toc: Array<Id3ChapterTOC> = emptyArray(),
         val images: Array<Id3Picture> = emptyArray()) {
     companion object {
         fun convertId3(mp3File: Mp3File) : Id3Metadata? {
@@ -35,6 +36,25 @@ data class Id3Metadata(
                     images = mp3File.id3v2Tag?.frameSets?.get("APIC")?.frames.orEmpty()
                             .map { if (mp3File.id3v2Tag.obseleteFormat) ID3v2ObseletePictureFrameData(false, it.data) else ID3v2PictureFrameData(false, it.data) }
                             .map { Id3Picture.convertId3PictureData(it) }
+                            .toTypedArray(),
+                    toc = mp3File.id3v2Tag?.chapterTOC
+                            .orEmpty()
+                            .map {
+                                val chaptersInToc = it.children
+                                        .orEmpty()
+                                        .map { childRef ->
+                                            mp3File.id3v2Tag.chapters
+                                                    ?.firstOrNull { chapter -> childRef == chapter.id }
+                                        }
+                                        .filterNotNull()
+                                        .map { chapter -> Id3Chapter.convertId3Chapter(chapter) }
+                                        .toTypedArray()
+                                Id3ChapterTOC(
+                                        it.id,
+                                        it.isRoot,
+                                        chaptersInToc
+                                )
+                            }
                             .toTypedArray()
             )
         }
