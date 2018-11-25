@@ -92,6 +92,39 @@ enum class Id3PictureType(val value: Byte) {
 }
 
 
+data class Id3Chapter(
+        val id: String,
+        val startTime: Long?,
+        val startOffset: Long?,
+        val endTime: Long?,
+        val endOffset: Long?,
+        val attachments: Array<ChapterAttachment>
+) {
+    companion object {
+        fun convertId3Chapter(chapterFrameData: ID3v2ChapterFrameData) : Id3Chapter {
+            return Id3Chapter(
+                    chapterFrameData.id,
+                    if (chapterFrameData.startTime == -1) null else chapterFrameData.startTime.toLong(),
+                    if (chapterFrameData.startOffset == -1) null else chapterFrameData.startOffset.toLong(),
+                    if (chapterFrameData.endTime == -1) null else chapterFrameData.endTime.toLong(),
+                    if (chapterFrameData.endOffset == -1) null else chapterFrameData.endOffset.toLong(),
+                    chapterFrameData.subframes
+                            ?.map {
+                                when (ChapterAttachmentType.fromFlag(it.id)) {
+                                    ChapterAttachmentType.TITLE -> TitleChapterAttachment(ID3v2TextFrameData(true, it.data).text.toString())
+                                    ChapterAttachmentType.URL -> {
+                                        val data = ID3v2UrlFrameData(true, it.data)
+                                        UrlChapterAttachment(data.description?.toString() ?: "", data.url)
+                                    }
+                                    ChapterAttachmentType.OTHER -> OtherChapterAttachment(it.id)
+                                }
+                            }
+                            ?.toTypedArray() ?: emptyArray()
+            )
+        }
+    }
+}
+
 interface ChapterAttachment {
     val type: ChapterAttachmentType
 }
