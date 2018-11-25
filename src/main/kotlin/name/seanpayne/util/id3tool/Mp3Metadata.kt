@@ -1,9 +1,6 @@
 package name.seanpayne.util.id3tool
 
-import com.mpatric.mp3agic.ID3Wrapper
-import com.mpatric.mp3agic.ID3v2ObseletePictureFrameData
-import com.mpatric.mp3agic.ID3v2PictureFrameData
-import com.mpatric.mp3agic.Mp3File
+import com.mpatric.mp3agic.*
 import java.util.*
 
 data class Mp3FileMetadata(
@@ -92,4 +89,19 @@ enum class Id3PictureType(val value: Byte) {
         }
     }
 
+}
+
+enum class ChapterAttachmentType(val flag: String) {
+    TITLE("TIT2"),
+    URL("WXXX"),
+    OTHER("XXX");
+
+    companion object {
+        fun fromFlag(flag: String) : ChapterAttachmentType {
+            val result = values()
+                    .filter { it.flag == flag }
+                    .firstOrNull()
+            return result ?: OTHER
+        }
+    }
 }
